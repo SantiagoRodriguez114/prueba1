@@ -18,34 +18,46 @@ class Parqueo:
             self.espera.put(placa)
             print('El vehiculo ha sido puesto en espera, no hay espacio disponible...')
 
-    def salida(self, placa, iteraciones=0):
-        if self.via.empty():
-            print(f"Vehículo con placa {placa} no encontrado.")
-            return iteraciones  
+    def salida(self, placa):
+        temp = queue.Queue()
+        movimientos = 0  
 
-        vehiculo = self.via.get()
-        iteraciones += 1  
+        while not self.via.empty():
+            vehiculo = self.via.get()
+            movimientos += 1  
 
-        if vehiculo == placa:
-            print(f"Vehículo con placa {placa} ha salido después de {iteraciones} movimientos.")
-            return iteraciones  
+            if vehiculo == placa:
+                print(f"Vehiculo con placa {placa} ha salido despues de {movimientos} movimientos.")
+                break  
+            temp.put(vehiculo)
 
-        iteraciones = self.salida(placa, iteraciones)  
+        while not self.via.empty():
+            temp.put(self.via.get())
 
-        self.via.put(vehiculo)  
+        while not temp.empty():
+            self.via.put(temp.get())
+
         if not self.via.full() and not self.espera.empty():
-            self.via.put(self.espera.get())
-            
-        return iteraciones  
+            self.via.put(self.espera.get())  
 
     
     def mostrar(self):
-        print("Estacionamiento:", list(self.via.queue))
+        print("Estacionamiento:", end=" ")
+        for i in range(self.via.qsize()):
+            vehiculo = self.via.get()
+            print(vehiculo, end=" ")
+            self.via.put(vehiculo)
+        print()
 
     def mostrarEspera(self):
-        print("Lista de espera:", list(self.espera.queue))
+        print("Lista de espera:", end=" ")
+        for i in range(self.espera.qsize()):
+            vehiculo = self.espera.get()
+            print(vehiculo, end=" ")
+            self.espera.put(vehiculo)
+        print()
      
-estacionamiento = Parqueo(3)
+estacionamiento = Parqueo(8)
 
 while True:
     print("\n----------------------")
@@ -71,9 +83,3 @@ while True:
             print("Saliendo...")
             break
         case _ : print("Ingresa una opcion valida...")
-
-
-            
-
-
-        
